@@ -5,7 +5,7 @@
 	let activeSnapPoint: string | number | undefined | null = $state("148px");
 
 	const overflowClass = $derived(
-		(activeSnapPoint as string | number) === 1 ? "overflow-y-auto" : "overflow-hidden",
+		(activeSnapPoint as string | number) === 1 ? "overflow-y-auto" : "overflow-hidden"
 	);
 </script>
 
@@ -21,9 +21,7 @@
 			data-testid="content"
 			class="border-b-none fixed right-0 bottom-0 left-0 mx-[-1px] flex h-full max-h-[97%] flex-col rounded-t-[10px] border border-gray-200 bg-white"
 		>
-			<div
-				class="mx-auto flex w-full max-w-md flex-col p-4 pt-5 {overflowClass}"
-			>
+			<div class="mx-auto flex w-full max-w-md flex-col p-4 pt-5 {overflowClass}">
 				<div class="flex items-center">
 					<svg
 						class="h-5 w-5 flex-shrink-0 text-yellow-400"

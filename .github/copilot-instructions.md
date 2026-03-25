@@ -20,16 +20,16 @@ This is **autopilot-vaul-svelte**, an unstyled, gesture-driven drawer component 
 
 ## Commands
 
-| Task | Command |
-| --- | --- |
-| Dev server | `pnpm run dev` |
-| Build | `pnpm run build` |
-| Lint | `pnpm run lint` |
-| Format | `pnpm run format` |
-| Type-check | `pnpm run check` |
-| Test (watch) | `pnpm run test` |
-| Test (CI) | `pnpm run test --run` |
-| Package lib | `pnpm run package` |
+| Task         | Command               |
+| ------------ | --------------------- |
+| Dev server   | `pnpm run dev`        |
+| Build        | `pnpm run build`      |
+| Lint         | `pnpm run lint`       |
+| Format       | `pnpm run format`     |
+| Type-check   | `pnpm run check`      |
+| Test (watch) | `pnpm run test`       |
+| Test (CI)    | `pnpm run test --run` |
+| Package lib  | `pnpm run package`    |
 
 ## Project Structure
 
@@ -82,14 +82,9 @@ This codebase uses **Svelte 5 runes** exclusively. Never use legacy Svelte 4 pat
 
 ```svelte
 <script lang="ts">
-  import type { Props } from "./types.js";
+	import type { Props } from "./types.js";
 
-  let {
-    open = $bindable(false),
-    direction = "bottom",
-    children,
-    ...restProps
-  }: Props = $props();
+	let { open = $bindable(false), direction = "bottom", children, ...restProps }: Props = $props();
 </script>
 ```
 
@@ -101,9 +96,11 @@ This codebase uses **Svelte 5 runes** exclusively. Never use legacy Svelte 4 pat
 ### Reactivity
 
 ```ts
-let count = $state(0);                      // mutable state
-let doubled = $derived(count * 2);          // derived value
-$effect(() => { /* side effect */ });        // reactive effect
+let count = $state(0); // mutable state
+let doubled = $derived(count * 2); // derived value
+$effect(() => {
+	/* side effect */
+}); // reactive effect
 ```
 
 - Use `$state()` instead of `let x = value`
@@ -142,17 +139,18 @@ The drawer is used as a set of composable sub-components:
 
 ```svelte
 <Drawer.Root>
-  <Drawer.Trigger>Open</Drawer.Trigger>
-  <Drawer.Portal>
-    <Drawer.Content>...</Drawer.Content>
-    <Drawer.Overlay />
-  </Drawer.Portal>
+	<Drawer.Trigger>Open</Drawer.Trigger>
+	<Drawer.Portal>
+		<Drawer.Content>...</Drawer.Content>
+		<Drawer.Overlay />
+	</Drawer.Portal>
 </Drawer.Root>
 ```
 
 ### Bits UI Integration
 
 Components wrap Bits UI Dialog primitives:
+
 - `Drawer.Root` → `Dialog.Root`
 - `Drawer.Content` → `Dialog.Content`
 - `Drawer.Overlay` → `Dialog.Overlay`
@@ -163,6 +161,7 @@ Components wrap Bits UI Dialog primitives:
 ### Data Attributes
 
 The library uses `data-vaul-*` attributes for styling hooks:
+
 - `data-vaul-drawer` — on the drawer content element
 - `data-vaul-drawer-direction` — `"top"`, `"bottom"`, `"left"`, `"right"`
 - `data-vaul-drawer-visible` — `"true"` when visible
@@ -246,9 +245,9 @@ src/lib/internal/helpers/is.test.ts
 import { describe, it, expect } from "vitest";
 
 describe("functionName", () => {
-  it("should do something", () => {
-    expect(result).toBe(expected);
-  });
+	it("should do something", () => {
+		expect(result).toBe(expected);
+	});
 });
 ```
 
