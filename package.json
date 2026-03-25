@@ -1,8 +1,8 @@
 {
-	"name": "vaul-svelte",
+	"name": "auto-vaul-svelte",
 	"version": "0.3.2",
 	"license": "MIT",
-	"repository": "github:huntabyte/vaul-svelte",
+	"repository": "github:quanghle/vaul-svelte",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && pnpm run package",

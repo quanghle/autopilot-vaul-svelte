@@ -1,30 +1,20 @@
-![](static/og.jpg)
+# auto-vaul-svelte
 
-<!-- automd:badges license name="vaul-svelte" color="green" github="huntabyte/vaul-svelte" -->
-
-[![npm version](https://flat.badgen.net/npm/v/vaul-svelte?color=green)](https://npmjs.com/package/vaul-svelte)
-[![npm downloads](https://flat.badgen.net/npm/dm/vaul-svelte?color=green)](https://npmjs.com/package/vaul-svelte)
-[![license](https://flat.badgen.net/github/license/huntabyte/vaul-svelte?color=green)](https://github.com/huntabyte/vaul-svelte/blob/main/LICENSE)
-
-<!-- /automd -->
-
-Vaul-Svelte is an unstyled drawer component for Svelte that can be used as a Dialog replacement on tablet and mobile devices. It uses [Bits' Dialog primitive](https://www.bits-ui.com/docs/components/dialog) under the hood and is inspired by [this tweet](https://twitter.com/devongovett/status/1674470185783402496).
-
-This is a port of [Vaul](https://github.com/emilkowalski/vaul) for React, which was created by [Emil Kowalski](https://twitter.com/emilkowalski_).
+An unstyled drawer component for Svelte that can be used as a Dialog replacement on tablet and mobile devices. It uses [Bits' Dialog primitive](https://www.bits-ui.com/docs/components/dialog) under the hood.
 
 ## Usage
 
 To start using the library, install it in your project:
 
 ```bash
-npm install vaul-svelte
+npm install auto-vaul-svelte
 ```
 
 Use the drawer in your app.
 
 ```svelte
 <script>
-	import { Drawer } from "vaul-svelte";
+	import { Drawer } from "auto-vaul-svelte";
 </script>
 
 <Drawer.Root>
@@ -37,17 +27,6 @@ Use the drawer in your app.
 	</Drawer.Portal>
 </Drawer.Root>
 ```
-
-## Examples
-
-Play around with the examples on StackBlitz:
-
-- [With scaled background](https://stackblitz.com/edit/vaul-svelte-scaled?file=src%2Froutes%2F%2Bpage.svelte)
-- [Without scaled background](https://stackblitz.com/edit/vaul-svelte-without-scale?file=src%2Froutes%2F%2Bpage.svelte)
-- [With snap points](https://stackblitz.com/edit/vaul-svelte-snap-points?file=src%2Froutes%2F%2Bpage.svelte)
-- [Scrollable with inputs](https://stackblitz.com/edit/vaul-svelte-scrollable-with-inputs?file=src%2Froutes%2F%2Bpage.svelte)
-- [Nested drawers](https://stackblitz.com/edit/vaul-svelte-nested-drawers?file=src%2Froutes%2F%2Bpage.svelte)
-- [Non-dismissible](https://stackblitz.com/edit/vaul-svelte-non-dismissible?file=src%2Froutes%2F%2Bpage.svelte)
 
 ## API Reference
 
@@ -100,25 +79,6 @@ The button that closes the dialog. [Props](https://www.bits-ui.com/docs/componen
 
 Portals your drawer into the body.
 
-## Sponsors
-
-This project is supported by the following beautiful people/organizations:
-
-<p align="center">
-  <a href="https://github.com/sponsors/huntabyte">
-    <img src='https://github.com/huntabyte/static/blob/main/sponsors.svg?raw=true' alt="Logos from Sponsors" />
-  </a>
-</p>
-
 ## License
 
-<!-- automd:contributors license=MIT author="huntabyte" github="huntabyte/vaul-svelte" -->
-
-Published under the [MIT](https://github.com/huntabyte/vaul-svelte/blob/main/LICENSE) license.
-Made by [@huntabyte](https://github.com/huntabyte) and [community](https://github.com/huntabyte/vaul-svelte/graphs/contributors) 💛
-<br><br>
-<a href="https://github.com/huntabyte/vaul-svelte/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=huntabyte/vaul-svelte" />
-</a>
-
-<!-- /automd -->
+Published under the [MIT](LICENSE) license.
