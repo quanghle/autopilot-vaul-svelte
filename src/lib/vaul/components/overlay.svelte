@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Dialog } from "bits-ui";
-	import { get } from "svelte/store";
 	import { getCtx } from "../ctx.js";
 
 	let { class: className, ...restProps }: { class?: string; [key: string]: unknown } = $props();
@@ -23,7 +22,7 @@
 	let hasSnapPoints = $derived($snapPoints && $snapPoints.length > 0);
 
 	function handleClick() {
-		if (get(dismissible)) {
+		if ($dismissible) {
 			closeDrawer();
 		}
 	}
