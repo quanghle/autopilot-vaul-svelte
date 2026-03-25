@@ -11,7 +11,11 @@
 	} = getCtx();
 
 	onMount(() => {
-		visible.set(true);
+		// Delay setting visible to allow the browser to paint the initial
+		// off-screen state so the CSS transition animates smoothly.
+		requestAnimationFrame(() => {
+			visible.set(true);
+		});
 
 		return () => {
 			scaleBackground(false);
