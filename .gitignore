@@ -11,3 +11,5 @@ vite.config.ts.timestamp-*
 bun.lockb
 .vercel
 package-lock.json
+/test-results/
+/playwright-report/

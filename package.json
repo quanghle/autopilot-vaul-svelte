@@ -46,7 +46,6 @@
 		"@testing-library/svelte": "^5.3.1",
 		"@testing-library/user-event": "^14.6.1",
 		"@types/node": "^22.15.0",
-
 		"eslint": "^10.0.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.16.0",
@@ -59,7 +58,6 @@
 		"svelte": "^5.55.0",
 		"svelte-check": "^4.4.5",
 		"tailwindcss": "^4.2.2",
-
 		"typescript": "^5.8.3",
 		"typescript-eslint": "^8.57.2",
 		"vite": "^8.0.0",
