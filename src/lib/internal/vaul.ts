@@ -163,7 +163,7 @@ export function createVaul(props: CreateVaulProps) {
 	let cachedWrapperEl: Element | null = null;
 
 	function getWrapperEl(): Element | null {
-		if (!cachedWrapperEl) {
+		if (!cachedWrapperEl || !cachedWrapperEl.isConnected) {
 			cachedWrapperEl = document.querySelector("[data-vaul-drawer-wrapper]");
 		}
 		return cachedWrapperEl;
