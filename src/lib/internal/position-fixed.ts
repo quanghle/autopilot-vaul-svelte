@@ -88,7 +88,7 @@ export function handlePositionFixed({
 		const removeListener = addEventListener(window, "scroll", onScroll);
 
 		return () => {
-			removeListener;
+			removeListener();
 		};
 	});
 

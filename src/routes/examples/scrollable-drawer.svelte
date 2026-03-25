@@ -4,14 +4,14 @@
 
 <Drawer.Root>
 	<Drawer.Trigger
-		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 	>
 		Open Scrollable Drawer
 	</Drawer.Trigger>
 	<Drawer.Portal>
 		<Drawer.Overlay class="fixed inset-0 bg-black/40" />
 		<Drawer.Content
-			class="fixed bottom-0 left-0 right-0 flex max-h-[96%] flex-col rounded-t-[10px] bg-white"
+			class="fixed right-0 bottom-0 left-0 flex max-h-[96%] flex-col rounded-t-[10px] bg-white"
 		>
 			<div class="mx-auto flex w-full max-w-md flex-col overflow-auto rounded-t-[10px] p-4">
 				<input class="my-8 border border-gray-400" placeholder="Input" />

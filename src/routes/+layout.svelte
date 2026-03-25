@@ -1,10 +1,12 @@
 <script lang="ts">
-	import "../app.pcss";
+	import "../app.css";
 	import Metadata from "./metadata.svelte";
+
+	let { children } = $props();
 </script>
 
 <Metadata />
 
 <main data-vaul-drawer-wrapper="">
-	<slot />
+	{@render children?.()}
 </main>

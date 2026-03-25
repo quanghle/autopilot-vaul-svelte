@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { Drawer } from "$lib/index.js";
+	import type { Snippet } from "svelte";
+
+	let { children }: { children?: Snippet } = $props();
 </script>
 
 <div class="mx-auto max-w-md">
@@ -28,5 +31,5 @@
 			this tweet.
 		</a>
 	</p>
-	<slot />
+	{@render children?.()}
 </div>

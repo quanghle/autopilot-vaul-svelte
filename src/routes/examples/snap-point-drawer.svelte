@@ -3,12 +3,12 @@
 	import { clsx } from "clsx";
 
 	const snapPoints = ["148px", "355px", 1];
-	let activeSnapPoint: string | number | undefined | null = "148px";
+	let activeSnapPoint: string | number | undefined | null = $state("148px");
 </script>
 
 <Drawer.Root {snapPoints} bind:activeSnapPoint>
 	<Drawer.Trigger
-		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 	>
 		Open SnapPoints Drawer
 	</Drawer.Trigger>
@@ -16,7 +16,7 @@
 	<Drawer.Portal>
 		<Drawer.Content
 			data-testid="content"
-			class="border-b-none fixed bottom-0 left-0 right-0 mx-[-1px] flex h-full max-h-[97%] flex-col rounded-t-[10px] border border-gray-200 bg-white"
+			class="border-b-none fixed right-0 bottom-0 left-0 mx-[-1px] flex h-full max-h-[97%] flex-col rounded-t-[10px] border border-gray-200 bg-white"
 		>
 			<div
 				class={clsx("mx-auto flex w-full max-w-md flex-col p-4 pt-5", {
@@ -87,7 +87,7 @@
 					</svg>
 				</div>
 				<h1 class="mt-2 text-2xl font-medium">The Hidden Details</h1>
-				<p class="mb-6 mt-1 text-sm text-gray-600">2 modules, 27 hours of video</p>
+				<p class="mt-1 mb-6 text-sm text-gray-600">2 modules, 27 hours of video</p>
 				<p class="text-gray-600">
 					The world of user interface design is an intricate landscape filled with hidden details
 					and nuance. In this course, you will learn something cool. To the untrained eye, a

@@ -2,12 +2,15 @@
 	import Root from "./root.svelte";
 	import { getCtx } from "../ctx.js";
 	import type { Props } from "./types.js";
+	import type { Snippet } from "svelte";
 
-	type $$Props = Props;
-
-	export let onDrag: $$Props["onDrag"] = undefined;
-	export let onOpenChange: $$Props["onOpenChange"] = undefined;
-	export let open: $$Props["open"] = undefined;
+	let {
+		onDrag,
+		onOpenChange,
+		open = $bindable(undefined),
+		children,
+		...restProps
+	}: Props & { children?: Snippet } = $props();
 
 	const {
 		methods: { onNestedDrag, onNestedRelease, onNestedOpenChange },
@@ -35,7 +38,7 @@
 		onOpenChange?.(o);
 	}}
 	onRelease={onNestedRelease}
-	{...$$restProps}
+	{...restProps}
 >
-	<slot />
+	{@render children?.()}
 </Root>

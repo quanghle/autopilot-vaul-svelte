@@ -15,8 +15,7 @@ const nonTextInputTypes = new Set([
 
 export const isBrowser = typeof document !== "undefined";
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function isFunction(v: unknown): v is Function {
+export function isFunction(v: unknown): v is (...args: unknown[]) => unknown {
 	return typeof v === "function";
 }
 

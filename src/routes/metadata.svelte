@@ -2,7 +2,7 @@
 	import { page } from "$app/stores";
 	import { siteConfig } from "../config/site.js";
 
-	export let title: string = siteConfig.name;
+	let { title = siteConfig.name }: { title?: string } = $props();
 </script>
 
 <svelte:head>

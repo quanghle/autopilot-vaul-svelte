@@ -1,6 +1,7 @@
-import type { Dialog as DialogPrimitive } from "bits-ui";
 import type { CreateVaulProps } from "$lib/internal/vaul.js";
 import type { DrawerDirection, OnChangeFn } from "$lib/internal/types.js";
+import type { Snippet } from "svelte";
+import type { HTMLAttributes } from "svelte/elements";
 
 export type Props = {
 	/**
@@ -113,10 +114,23 @@ export type Props = {
 	 *
 	 */
 	direction?: DrawerDirection;
-} & DialogPrimitive.Props;
 
-export type OverlayProps = DialogPrimitive.OverlayProps;
-export type ContentProps = DialogPrimitive.ContentProps;
-export type TitleProps = DialogPrimitive.TitleProps;
-export type DescriptionProps = DialogPrimitive.DescriptionProps;
-export type CloseProps = DialogPrimitive.CloseProps;
+	/**
+	 * Whether to close the drawer when the user clicks outside of it.
+	 *
+	 * @default true
+	 */
+	closeOnOutsideClick?: boolean;
+
+	/**
+	 * Content to render inside the drawer root.
+	 */
+	children?: Snippet;
+};
+
+export type OverlayProps = HTMLAttributes<HTMLDivElement>;
+export type ContentProps = HTMLAttributes<HTMLDivElement>;
+export type TitleProps = HTMLAttributes<HTMLHeadingElement>;
+export type DescriptionProps = HTMLAttributes<HTMLDivElement>;
+export type CloseProps = HTMLAttributes<HTMLButtonElement>;
+export type TriggerProps = HTMLAttributes<HTMLButtonElement>;

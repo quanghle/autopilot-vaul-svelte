@@ -5,17 +5,17 @@
 
 <Drawer.Root>
 	<Drawer.Trigger
-		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 	>
 		Open non-draggable drawer
 	</Drawer.Trigger>
 	<Drawer.Portal>
 		<Drawer.Overlay class="fixed inset-0 bg-black/40" />
 		<Drawer.Content
-			class="fixed bottom-0 left-0 right-0 mt-24 flex h-full max-h-[96%] flex-col rounded-t-[10px] bg-gray-100"
+			class="fixed right-0 bottom-0 left-0 mt-24 flex h-full max-h-[96%] flex-col rounded-t-[10px] bg-gray-100"
 		>
 			<div class="flex-1 rounded-t-[10px] bg-white p-4">
-				<div class="mx-auto mb-8 h-1.5 w-12 flex-shrink-0 rounded-full bg-gray-300" />
+				<div class="mx-auto mb-8 h-1.5 w-12 flex-shrink-0 rounded-full bg-gray-300"></div>
 				<CenteredContent>
 					<p class="mb-8 text-gray-600">
 						Here are
@@ -43,7 +43,7 @@
 			<div class="mt-auto border-t border-gray-200 bg-gray-100 p-4">
 				<div class="mx-auto flex max-w-md justify-end gap-6">
 					<a
-						class="gap-0.25 flex items-center text-xs text-gray-600"
+						class="flex items-center gap-0.25 text-xs text-gray-600"
 						href="https://github.com/huntabyte/vaul-svelte"
 						target="_blank"
 					>
@@ -66,7 +66,7 @@
 						</svg>
 					</a>
 					<a
-						class="gap-0.25 flex items-center text-xs text-gray-600"
+						class="flex items-center gap-0.25 text-xs text-gray-600"
 						href="https://twitter.com/huntabyte"
 						target="_blank"
 					>

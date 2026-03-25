@@ -1,11 +1,20 @@
 <script lang="ts">
-	import { Dialog as DialogPrimitive } from "bits-ui";
-	import type { ContentProps } from "./types.js";
+	import { Dialog } from "bits-ui";
+	import type { Snippet } from "svelte";
 	import { getCtx } from "../ctx.js";
 	import Visible from "./visible.svelte";
 
-	type $$Props = ContentProps;
-	type $$Events = DialogPrimitive.ContentEvents;
+	let {
+		style = "",
+		children,
+		class: className,
+		...restProps
+	}: {
+		style?: string;
+		children?: Snippet;
+		class?: string;
+		[key: string]: unknown;
+	} = $props();
 
 	const {
 		refs: { drawerRef },
@@ -15,32 +24,43 @@
 		options: { direction },
 	} = getCtx();
 
-	export let style: $$Props["style"] = "";
+	let drawerEl: HTMLDivElement | null = $state(null);
+
+	$effect(() => {
+		if (drawerEl) drawerRef.set(drawerEl);
+	});
+
+	let contentStyle = $derived($getContentStyle(style));
 </script>
 
-<DialogPrimitive.Content
-	bind:el={$drawerRef}
-	style={$getContentStyle(style)}
-	on:pointerdown={(e) => {
+<Dialog.Content
+	bind:ref={drawerEl}
+	style={contentStyle}
+	class={className}
+	onpointerdown={(e) => {
 		onPress(e);
 	}}
-	on:pointerup={(e) => {
+	onpointerup={(e) => {
 		onRelease(e);
 	}}
-	on:pointermove={(e) => {
+	onpointermove={(e) => {
 		onDrag(e);
 	}}
-	on:touchend={(e) => {
+	ontouchend={(e) => {
 		onRelease(e);
 	}}
-	on:touchmove={(e) => {
+	ontouchmove={(e) => {
 		onDrag(e);
 	}}
+	interactOutsideBehavior="ignore"
+	escapeKeydownBehavior="ignore"
+	preventScroll={false}
+	trapFocus={false}
 	data-vaul-drawer=""
 	data-vaul-drawer-direction={$direction}
 	data-vaul-drawer-visible={$visible ? "true" : "false"}
-	{...$$restProps}
+	{...restProps}
 >
 	<Visible />
-	<slot />
-</DialogPrimitive.Content>
+	{@render children?.()}
+</Dialog.Content>

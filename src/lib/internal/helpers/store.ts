@@ -1,6 +1,12 @@
-import type { Readable, Stores, StoresValues, Updater, Writable } from "svelte/store";
+import type { Readable, Updater, Writable } from "svelte/store";
 import { derived, writable } from "svelte/store";
 import { onDestroy, onMount } from "svelte";
+
+/** Local type definitions for Svelte 5 compatibility (these were removed from svelte/store exports) */
+type Stores = Readable<unknown> | [Readable<unknown>, ...Array<Readable<unknown>>];
+
+type StoresValues<T> =
+	T extends Readable<infer U> ? U : { [K in keyof T]: T[K] extends Readable<infer U> ? U : never };
 
 /**
  * A utility function that creates an effect from a set of stores and a function.

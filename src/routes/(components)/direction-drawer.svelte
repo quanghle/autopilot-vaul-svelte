@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { Drawer, type DrawerDirection } from "$lib/index.js";
 	import DrawerContent from "./drawer-content.svelte";
-	export let direction: DrawerDirection;
+
+	let { direction }: { direction: DrawerDirection } = $props();
 </script>
 
 <Drawer.Root {direction}>
 	<Drawer.Trigger
-		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 	>
 		Open {direction} drawer
 	</Drawer.Trigger>

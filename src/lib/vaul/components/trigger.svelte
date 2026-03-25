@@ -1,31 +1,25 @@
 <script lang="ts">
-	import { Dialog as DialogPrimitive } from "bits-ui";
-	import TriggerWrapper from "./trigger-wrapper.svelte";
+	import { Dialog } from "bits-ui";
 	import { getCtx } from "../ctx.js";
+	import type { Snippet } from "svelte";
 
-	type $$Props = DialogPrimitive.TriggerProps;
-	type $$Events = DialogPrimitive.TriggerEvents;
+	let {
+		children,
+		class: className,
+		...restProps
+	}: { children?: Snippet; class?: string; [key: string]: unknown } = $props();
 
 	const {
 		refs: { triggerRef },
 	} = getCtx();
 
-	export let el: HTMLButtonElement | undefined = undefined;
-	export let asChild: boolean = false;
+	let triggerEl: HTMLElement | null = $state(null);
 
-	$: if (el) {
-		triggerRef.set(el);
-	}
+	$effect(() => {
+		if (triggerEl) triggerRef.set(triggerEl as HTMLButtonElement);
+	});
 </script>
 
-{#if asChild}
-	<DialogPrimitive.Trigger {asChild} let:builder on:click on:keydown bind:el {...$$restProps}>
-		<TriggerWrapper meltBuilder={builder} let:newBuilder>
-			<slot builder={newBuilder} />
-		</TriggerWrapper>
-	</DialogPrimitive.Trigger>
-{:else}
-	<DialogPrimitive.Trigger let:builder on:click on:keydown bind:el {...$$restProps}>
-		<slot {builder} />
-	</DialogPrimitive.Trigger>
-{/if}
+<Dialog.Trigger bind:ref={triggerEl} class={className} {...restProps}>
+	{@render children?.()}
+</Dialog.Trigger>
