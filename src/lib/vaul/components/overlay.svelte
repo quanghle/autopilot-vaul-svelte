@@ -7,7 +7,10 @@
 	const {
 		refs: { overlayRef },
 		states: { isOpen, visible, snapPoints, shouldFade },
-		methods: { onRelease },
+		methods: { onRelease, closeDrawer },
+		options: {
+			dismissible,
+		},
 	} = getCtx();
 
 	let overlayEl: HTMLDivElement | null = $state(null);
@@ -17,11 +20,18 @@
 	});
 
 	let hasSnapPoints = $derived($snapPoints && $snapPoints.length > 0);
+
+	function handleClick() {
+		if ($dismissible) {
+			closeDrawer();
+		}
+	}
 </script>
 
 <Dialog.Overlay
 	bind:ref={overlayEl}
 	onmouseup={onRelease}
+	onclick={handleClick}
 	class={className}
 	data-vaul-drawer-visible={$visible ? "true" : "false"}
 	data-vaul-overlay=""

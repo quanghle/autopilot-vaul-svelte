@@ -89,22 +89,6 @@
 	</div>
 </div>
 
-<!-- Installation Section -->
-<section class="relative mx-auto max-w-3xl px-6 py-16">
-	<h2 class="mb-6 text-3xl font-bold tracking-tight">Installation</h2>
-	<p class="mb-4 text-gray-600">Install the package with your preferred package manager:</p>
-	<div class="space-y-3">
-		<div class="overflow-hidden rounded-lg bg-gray-900 shadow-lg">
-			<div class="flex items-center gap-2 border-b border-gray-700 px-4 py-2">
-				<span class="text-xs text-gray-400">pnpm</span>
-			</div>
-			<pre class="overflow-x-auto p-4 text-sm text-gray-100"><code
-					>pnpm add autopilot-vaul-svelte</code
-				></pre>
-		</div>
-	</div>
-</section>
-
 <!-- Basic Usage Section -->
 <section class="relative mx-auto max-w-3xl px-6 py-16">
 	<h2 class="mb-6 text-3xl font-bold tracking-tight">Basic Usage</h2>

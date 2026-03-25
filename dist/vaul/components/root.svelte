@@ -28,6 +28,7 @@
 		states: { activeSnapPoint: localActiveSnapPoint, isOpen },
 		methods: { closeDrawer, openDrawer },
 		updateOption,
+	// svelte-ignore state_referenced_locally
 	} = setCtx({
 		defaultOpen: open,
 		defaultActiveSnapPoint: activeSnapPoint,

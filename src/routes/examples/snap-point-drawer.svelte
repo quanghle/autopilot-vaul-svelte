@@ -6,14 +6,14 @@
 	let activeSnapPoint: string | number | undefined | null = $state("148px");
 </script>
 
-<Drawer.Root {snapPoints} bind:activeSnapPoint>
+<Drawer.Root {snapPoints} fadeFromIndex={0} bind:activeSnapPoint>
 	<Drawer.Trigger
 		class="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-gray-300 ring-inset hover:bg-gray-50"
 	>
 		Open SnapPoints Drawer
 	</Drawer.Trigger>
-	<Drawer.Overlay class="fixed inset-0 bg-black/40" />
 	<Drawer.Portal>
+		<Drawer.Overlay class="fixed inset-0 bg-black/40" />
 		<Drawer.Content
 			data-testid="content"
 			class="border-b-none fixed right-0 bottom-0 left-0 mx-[-1px] flex h-full max-h-[97%] flex-col rounded-t-[10px] border border-gray-200 bg-white"
