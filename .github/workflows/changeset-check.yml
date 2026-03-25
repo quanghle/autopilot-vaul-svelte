@@ -53,3 +53,5 @@ jobs:
             This will generate a changeset file that describes the changes and the version bump type (patch, minor, or major).
 
             If this PR does **not** require a version bump (e.g. docs-only, CI changes, refactoring), you can ignore this message.
+
+            @copilot generate a changeset for this PR.
