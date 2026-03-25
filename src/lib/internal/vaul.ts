@@ -19,7 +19,13 @@ import {
 	isBrowser,
 } from "$lib/internal/helpers/index.js";
 import { isIOS, preventScroll } from "./prevent-scroll.js";
-import { TRANSITIONS, TRANSITION_TIMING, TRANSFORM_TRANSITION, OPACITY_TRANSITION, VELOCITY_THRESHOLD } from "./constants.js";
+import {
+	TRANSITIONS,
+	TRANSITION_TIMING,
+	TRANSFORM_TRANSITION,
+	OPACITY_TRANSITION,
+	VELOCITY_THRESHOLD,
+} from "./constants.js";
 import { handleEscapeKeydown } from "./escape-keydown.js";
 import { handlePositionFixed } from "./position-fixed.js";
 

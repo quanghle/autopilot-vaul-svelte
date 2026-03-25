@@ -8,9 +8,7 @@
 		refs: { overlayRef },
 		states: { isOpen, visible, snapPoints, shouldFade },
 		methods: { onRelease, closeDrawer },
-		options: {
-			dismissible,
-		},
+		options: { dismissible },
 	} = getCtx();
 
 	let overlayEl: HTMLDivElement | null = $state(null);
