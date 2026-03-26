@@ -9,9 +9,9 @@ export function set(el, styles, ignoreCache = false) {
             el.style.setProperty(key, value);
             return;
         }
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        originalStyles[key] = el.style[key];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        originalStyles[key] =
+            el.style.getPropertyValue(key) ||
+                el.style[key];
         el.style[key] = value;
     });
     if (ignoreCache)
@@ -26,12 +26,10 @@ export function reset(el, prop) {
         return;
     }
     if (prop) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         el.style[prop] = originalStyles[prop];
     }
     else {
         Object.entries(originalStyles).forEach(([key, value]) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             el.style[key] = value;
         });
     }
@@ -49,6 +47,10 @@ export function getTranslate(element, direction) {
     // https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix
     mat = transform.match(/^matrix\((.+)\)$/);
     return mat ? parseFloat(mat[1].split(", ")[isVertical(direction) ? 5 : 4]) : null;
+}
+/** Build a translate3d string along the correct axis for the given direction. */
+export function makeTranslate(direction, value) {
+    return isVertical(direction) ? `translate3d(0, ${value}, 0)` : `translate3d(${value}, 0, 0)`;
 }
 export function styleToString(style) {
     return Object.keys(style).reduce((str, key) => {

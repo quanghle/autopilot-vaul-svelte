@@ -1,7 +1,5 @@
 import { readable } from "svelte/store";
-import { addEventListener } from "./helpers/event-listener.js";
-import { chain } from "./helpers/index.js";
-import { noop } from "./helpers/index.js";
+import { addEventListener, chain, noop, isHTMLElement } from "./helpers/index.js";
 /**
  * Creates a readable store that tracks the latest Escape Keydown that occurred on the document.
  *
@@ -54,7 +52,4 @@ export function handleEscapeKeydown(node, handler) {
         unsub();
         node.removeAttribute("data-escapee");
     };
-}
-function isHTMLElement(el) {
-    return el instanceof HTMLElement;
 }

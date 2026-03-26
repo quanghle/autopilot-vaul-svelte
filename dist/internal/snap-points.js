@@ -1,7 +1,7 @@
 import { tick } from "svelte";
 import { derived, get } from "svelte/store";
-import { TRANSITIONS, VELOCITY_THRESHOLD } from "./constants.js";
-import { effect, set, isVertical, isBottomOrRight } from "./helpers/index.js";
+import { TRANSFORM_TRANSITION, OPACITY_TRANSITION, VELOCITY_THRESHOLD } from "./constants.js";
+import { effect, set, isVertical, isBottomOrRight, makeTranslate } from "./helpers/index.js";
 export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overlayRef, fadeFromIndex, openTime, direction, }) {
     const isLastSnapPoint = derived([snapPoints, activeSnapPoint], ([$snapPoints, $activeSnapPoint]) => {
         return $activeSnapPoint === $snapPoints?.[$snapPoints.length - 1];
@@ -62,10 +62,8 @@ export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overl
             const $direction = get(direction);
             onSnapPointChange(newSnapPointIndex);
             set($drawerRef, {
-                transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
-                transform: isVertical($direction)
-                    ? `translate3d(0, ${dimension}px, 0)`
-                    : `translate3d(${dimension}px, 0, 0)`,
+                transition: TRANSFORM_TRANSITION,
+                transform: makeTranslate($direction, `${dimension}px`),
             });
             const $fadeFromIndex = get(fadeFromIndex);
             const $overlayRef = get(overlayRef);
@@ -73,13 +71,13 @@ export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overl
                 newSnapPointIndex !== $snapPointsOffset.length - 1 &&
                 newSnapPointIndex !== $fadeFromIndex) {
                 set($overlayRef, {
-                    transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+                    transition: OPACITY_TRANSITION,
                     opacity: "0",
                 });
             }
             else {
                 set($overlayRef, {
-                    transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+                    transition: OPACITY_TRANSITION,
                     opacity: "1",
                 });
             }
@@ -109,7 +107,7 @@ export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overl
         const hasDraggedUp = draggedDistance > 0;
         if (isOverlaySnapPoint) {
             set($overlayRef, {
-                transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+                transition: OPACITY_TRANSITION,
             });
         }
         if (velocity > 2 && !hasDraggedUp) {
@@ -166,9 +164,7 @@ export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overl
             return;
         }
         set($drawerRef, {
-            transform: isVertical($direction)
-                ? `translate3d(0, ${newValue}px, 0)`
-                : `translate3d(${newValue}px, 0, 0)`,
+            transform: makeTranslate($direction, `${newValue}px`),
         });
     }
     function getPercentageDragged(absDraggedDistance, isDraggingDown) {
@@ -217,7 +213,6 @@ export function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRef, overl
         }
     }
     return {
-        isLastSnapPoint,
         shouldFade,
         getPercentageDragged,
         activeSnapPointIndex,

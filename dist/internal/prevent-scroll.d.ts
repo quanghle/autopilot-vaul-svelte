@@ -1,5 +1,3 @@
-export declare function isSafari(): boolean | undefined;
-export declare function isIOS(): boolean | undefined;
 export declare function isScrollable(node: Element): boolean;
 export declare function getScrollParent(node: Element): Element;
 /**

@@ -1,27 +1,5 @@
 // This code comes from https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/overlays/src/usePreventScroll.ts
-import { addEventListener, chain, isInput } from "./helpers/index.js";
-function isMac() {
-    return testPlatform(/^Mac/);
-}
-function isIPhone() {
-    return testPlatform(/^iPhone/);
-}
-export function isSafari() {
-    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-}
-function isIPad() {
-    return (testPlatform(/^iPad/) ||
-        // iPadOS 13 lies and says it's a Mac, but we can distinguish by detecting touch support.
-        (isMac() && navigator.maxTouchPoints > 1));
-}
-export function isIOS() {
-    return isIPhone() || isIPad();
-}
-function testPlatform(re) {
-    return typeof window !== "undefined" && window.navigator != null
-        ? re.test(window.navigator.platform)
-        : undefined;
-}
+import { addEventListener, chain, isInput, isIOS } from "./helpers/index.js";
 const visualViewport = typeof document !== "undefined" && window.visualViewport;
 export function isScrollable(node) {
     const style = window.getComputedStyle(node);
@@ -207,9 +185,7 @@ function preventScrollMobileSafari() {
     // enable us to scroll the window to the top, which is required for the rest of this to work.
     const scrollX = window.pageXOffset;
     const scrollY = window.pageYOffset;
-    const restoreStyles = chain(setStyle(documentElement, "paddingRight", `${window.innerWidth - documentElement.clientWidth}px`), setStyle(documentElement, "overflow", "hidden")
-    // setStyle(document.body, 'marginTop', `-${scrollY}px`),
-    );
+    const restoreStyles = chain(setStyle(documentElement, "paddingRight", `${window.innerWidth - documentElement.clientWidth}px`), setStyle(documentElement, "overflow", "hidden"));
     // Scroll to the top. The negative margin on the body will make this appear the same.
     window.scrollTo(0, 0);
     const removeEvents = chain(addEventListener(document, "touchstart", onTouchStart, { passive: false, capture: true }), addEventListener(document, "touchmove", onTouchMove, { passive: false, capture: true }), addEventListener(document, "touchend", onTouchEnd, { passive: false, capture: true }), addEventListener(document, "focus", onFocus, true), addEventListener(window, "scroll", onWindowScroll));
@@ -221,7 +197,6 @@ function preventScrollMobileSafari() {
     };
 }
 // Sets a CSS property on an element, and returns a function to revert it to the previous value.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setStyle(element, style, value) {
     const cur = element.style[style];
     element.style[style] = value;
