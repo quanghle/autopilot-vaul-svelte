@@ -8,38 +8,34 @@ import {
 	type ChangeFn,
 	getTranslate,
 	isVertical,
+	makeTranslate,
 	set,
 	reset,
 	effect,
 	removeUndefined,
 	styleToString,
 	isInput,
+	isIOS,
 	noop,
 	addEventListener,
 	isBrowser,
 } from "$lib/internal/helpers/index.js";
-import { isIOS, preventScroll } from "./prevent-scroll.js";
+import { preventScroll } from "./prevent-scroll.js";
 import {
 	TRANSITIONS,
 	TRANSITION_TIMING,
 	TRANSFORM_TRANSITION,
 	OPACITY_TRANSITION,
 	VELOCITY_THRESHOLD,
+	CLOSE_THRESHOLD,
+	SCROLL_LOCK_TIMEOUT,
+	BORDER_RADIUS,
+	NESTED_DISPLACEMENT,
+	WINDOW_TOP_OFFSET,
+	DRAG_CLASS,
 } from "./constants.js";
 import { handleEscapeKeydown } from "./escape-keydown.js";
 import { handlePositionFixed } from "./position-fixed.js";
-
-const CLOSE_THRESHOLD = 0.25;
-
-const SCROLL_LOCK_TIMEOUT = 100;
-
-const BORDER_RADIUS = 8;
-
-const NESTED_DISPLACEMENT = 16;
-
-const WINDOW_TOP_OFFSET = 26;
-
-const DRAG_CLASS = "vaul-dragging";
 
 const openDrawerIds = writable<string[]>([]);
 
@@ -324,14 +320,11 @@ export function createVaul(props: CreateVaulProps) {
 			return false;
 		}
 
+		// Allow dragging if the drawer is already swiped in its opening direction
 		if (swipeAmount !== null) {
 			if ($direction === "bottom" || $direction === "right" ? swipeAmount > 0 : swipeAmount < 0) {
 				return true;
 			}
-		}
-
-		if (swipeAmount !== null && swipeAmount > 0) {
-			return true;
 		}
 
 		// Don't drag if there's highlighted text
@@ -426,9 +419,7 @@ export function createVaul(props: CreateVaulProps) {
 			const translateValue = Math.min(dampenedDraggedDistance * -1, 0) * directionMultiplier;
 
 			set($drawerRef, {
-				transform: isVertical($direction)
-					? `translate3d(0, ${translateValue}px, 0)`
-					: `translate3d(${translateValue}px, 0, 0)`,
+				transform: makeTranslate($direction, `${translateValue}px`),
 			});
 			return;
 		}
@@ -468,7 +459,7 @@ export function createVaul(props: CreateVaulProps) {
 		if (wrapper && $overlayRef && get(shouldScaleBackground)) {
 			// Calculate percentageDragged as a fraction (0 to 1)
 			const scaleValue = Math.min(getScale() + percentageDragged * (1 - getScale()), 1);
-			const borderRadiusValue = 8 - percentageDragged * 8;
+			const borderRadiusValue = BORDER_RADIUS - percentageDragged * BORDER_RADIUS;
 
 			const translateValue = Math.max(0, 14 - percentageDragged * 14);
 
@@ -476,9 +467,7 @@ export function createVaul(props: CreateVaulProps) {
 				wrapper,
 				{
 					borderRadius: `${borderRadiusValue}px`,
-					transform: isVertical($direction)
-						? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)`
-						: `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
+					transform: `scale(${scaleValue}) ${makeTranslate($direction, `${translateValue}px`)}`,
 					transition: "none",
 				},
 				true
@@ -488,9 +477,7 @@ export function createVaul(props: CreateVaulProps) {
 		if (!$snapPoints) {
 			const translateValue = absDraggedDistance * directionMultiplier;
 			set($drawerRef, {
-				transform: isVertical($direction)
-					? `translate3d(0, ${translateValue}px, 0)`
-					: `translate3d(${translateValue}px, 0, 0)`,
+				transform: makeTranslate($direction, `${translateValue}px`),
 			});
 		}
 	}
@@ -516,22 +503,7 @@ export function createVaul(props: CreateVaulProps) {
 				true
 			);
 
-			set(wrapper, {
-				borderRadius: `${BORDER_RADIUS}px`,
-				overflow: "hidden",
-				...(isVertical($direction)
-					? {
-							transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
-							transformOrigin: "top",
-						}
-					: {
-							transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
-							transformOrigin: "left",
-						}),
-				transitionProperty: "transform, border-radius",
-				transitionDuration: `${TRANSITIONS.DURATION}s`,
-				transitionTimingFunction: TRANSITION_TIMING,
-			});
+			set(wrapper, getWrapperScaleStyles($direction));
 		} else {
 			// Exit
 			reset(wrapper, "overflow");
@@ -626,10 +598,9 @@ export function createVaul(props: CreateVaulProps) {
 		const $direction = get(direction);
 
 		onClose?.();
+		const closeValue = $direction === "bottom" || $direction === "right" ? "100%" : "-100%";
 		set($drawerRef, {
-			transform: isVertical($direction)
-				? `translate3d(0, ${$direction === "bottom" ? "100%" : "-100%"}, 0)`
-				: `translate3d(${$direction === "right" ? "100%" : "-100%"}, 0, 0)`,
+			transform: makeTranslate($direction, closeValue),
 			transition: TRANSFORM_TRANSITION,
 		});
 
@@ -691,28 +662,15 @@ export function createVaul(props: CreateVaulProps) {
 		const $shouldScaleBackground = get(shouldScaleBackground);
 		const $isOpen = get(isOpen);
 
-		// Don't reset background if swiped upwards
-		if ($shouldScaleBackground && currentSwipeAmount && currentSwipeAmount > 0 && $isOpen) {
-			set(
-				wrapper,
-				{
-					borderRadius: `${BORDER_RADIUS}px`,
-					overflow: "hidden",
-					...(isVertical($direction)
-						? {
-								transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
-								transformOrigin: "top",
-							}
-						: {
-								transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
-								transformOrigin: "left",
-							}),
-					transitionProperty: "transform, border-radius",
-					transitionDuration: `${TRANSITIONS.DURATION}s`,
-					transitionTimingFunction: TRANSITION_TIMING,
-				},
-				true
-			);
+		// Don't reset background if swiped past the resting position (opposite of close direction)
+		const isSwipedInCloseDirection =
+			currentSwipeAmount !== null &&
+			($direction === "bottom" || $direction === "right"
+				? currentSwipeAmount > 0
+				: currentSwipeAmount < 0);
+
+		if ($shouldScaleBackground && isSwipedInCloseDirection && $isOpen) {
+			set(wrapper, getWrapperScaleStyles($direction), true);
 		}
 	}
 
@@ -826,8 +784,10 @@ export function createVaul(props: CreateVaulProps) {
 
 	function onNestedOpenChange(o: boolean) {
 		const $drawerRef = get(drawerRef);
-		const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
-		const y = o ? -NESTED_DISPLACEMENT : 0;
+		const $direction = get(direction);
+		const dim = isVertical($direction) ? window.innerHeight : window.innerWidth;
+		const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
+		const translate = o ? -NESTED_DISPLACEMENT : 0;
 
 		if (nestedOpenChangeTimer) {
 			window.clearTimeout(nestedOpenChangeTimer);
@@ -835,7 +795,7 @@ export function createVaul(props: CreateVaulProps) {
 
 		set($drawerRef, {
 			transition: TRANSFORM_TRANSITION,
-			transform: `scale(${scale}) translate3d(0, ${y}px, 0)`,
+			transform: `scale(${scale}) ${makeTranslate($direction, `${translate}px`)}`,
 		});
 
 		if (!o && $drawerRef) {
@@ -844,9 +804,7 @@ export function createVaul(props: CreateVaulProps) {
 				const translateValue = getTranslate($drawerRef, $direction);
 				set($drawerRef, {
 					transition: "none",
-					transform: isVertical($direction)
-						? `translate3d(0, ${translateValue}px, 0)`
-						: `translate3d(${translateValue}px, 0, 0)`,
+					transform: makeTranslate($direction, `${translateValue}px`),
 				});
 			}, 500);
 		}
@@ -863,9 +821,7 @@ export function createVaul(props: CreateVaulProps) {
 		const $direction = get(direction);
 
 		set(get(drawerRef), {
-			transform: isVertical($direction)
-				? `scale(${newScale}) translate3d(0, ${newTranslate}px, 0)`
-				: `scale(${newScale}) translate3d(${newTranslate}px, 0, 0)`,
+			transform: `scale(${newScale}) ${makeTranslate($direction, `${newTranslate}px`)}`,
 			transition: "none",
 		});
 	}
@@ -882,9 +838,7 @@ export function createVaul(props: CreateVaulProps) {
 		if (o) {
 			set(get(drawerRef), {
 				transition: TRANSFORM_TRANSITION,
-				transform: isVertical($direction)
-					? `scale(${scale}) translate3d(0, ${translate}px, 0)`
-					: `scale(${scale}) translate3d(${translate}px, 0, 0)`,
+				transform: `scale(${scale}) ${makeTranslate($direction, `${translate}px`)}`,
 			});
 		}
 	}
@@ -933,6 +887,21 @@ export function dampenValue(v: number) {
 
 function getScale() {
 	return (window.innerWidth - WINDOW_TOP_OFFSET) / window.innerWidth;
+}
+
+/** Return the shared wrapper styles used when the background is scaled (open state). */
+function getWrapperScaleStyles(direction: DrawerDirection): Record<string, string> {
+	return {
+		borderRadius: `${BORDER_RADIUS}px`,
+		overflow: "hidden",
+		transform: isVertical(direction)
+			? `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`
+			: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
+		transformOrigin: isVertical(direction) ? "top" : "left",
+		transitionProperty: "transform, border-radius",
+		transitionDuration: `${TRANSITIONS.DURATION}s`,
+		transitionTimingFunction: TRANSITION_TIMING,
+	};
 }
 
 function getDistanceMoved(

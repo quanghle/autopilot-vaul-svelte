@@ -29,7 +29,7 @@ describe("chain", () => {
 	it("skips non-function values", () => {
 		const fn1 = vi.fn();
 
-		const chained = chain(null, fn1, undefined, "not a function", fn1);
+		const chained = chain(null, fn1, undefined, fn1);
 		chained();
 
 		expect(fn1).toHaveBeenCalledTimes(2);

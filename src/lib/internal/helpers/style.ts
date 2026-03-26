@@ -5,7 +5,7 @@ interface Style {
 	[key: string]: string;
 }
 
-const cache = new WeakMap();
+const cache = new WeakMap<Element, Style>();
 
 export function set(el?: Element | HTMLElement | null, styles?: Style, ignoreCache = false) {
 	if (!el || !(el instanceof HTMLElement) || !styles) return;
@@ -18,10 +18,10 @@ export function set(el?: Element | HTMLElement | null, styles?: Style, ignoreCac
 			return;
 		}
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		originalStyles[key] = (el.style as any)[key];
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(el.style as any)[key] = value;
+		originalStyles[key] =
+			el.style.getPropertyValue(key) ||
+			(el.style as CSSStyleDeclaration & Record<string, string>)[key];
+		(el.style as CSSStyleDeclaration & Record<string, string>)[key] = value;
 	});
 
 	if (ignoreCache) return;
@@ -38,12 +38,10 @@ export function reset(el: Element | HTMLElement | null, prop?: string) {
 	}
 
 	if (prop) {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(el.style as any)[prop] = originalStyles[prop];
+		(el.style as CSSStyleDeclaration & Record<string, string>)[prop] = originalStyles[prop];
 	} else {
 		Object.entries(originalStyles).forEach(([key, value]) => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			(el.style as any)[key] = value;
+			(el.style as CSSStyleDeclaration & Record<string, string>)[key] = value;
 		});
 	}
 }
@@ -61,6 +59,11 @@ export function getTranslate(element: HTMLElement, direction: DrawerDirection): 
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/transform-function/matrix
 	mat = transform.match(/^matrix\((.+)\)$/);
 	return mat ? parseFloat(mat[1].split(", ")[isVertical(direction) ? 5 : 4]) : null;
+}
+
+/** Build a translate3d string along the correct axis for the given direction. */
+export function makeTranslate(direction: DrawerDirection, value: string): string {
+	return isVertical(direction) ? `translate3d(0, ${value}, 0)` : `translate3d(${value}, 0, 0)`;
 }
 
 export function styleToString(style: Record<string, number | string | undefined>): string {

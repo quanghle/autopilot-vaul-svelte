@@ -1,36 +1,6 @@
 // This code comes from https://github.com/adobe/react-spectrum/blob/main/packages/%40react-aria/overlays/src/usePreventScroll.ts
 
-import { addEventListener, chain, isInput } from "$lib/internal/helpers/index.js";
-
-function isMac(): boolean | undefined {
-	return testPlatform(/^Mac/);
-}
-
-function isIPhone(): boolean | undefined {
-	return testPlatform(/^iPhone/);
-}
-
-export function isSafari(): boolean | undefined {
-	return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-}
-
-function isIPad(): boolean | undefined {
-	return (
-		testPlatform(/^iPad/) ||
-		// iPadOS 13 lies and says it's a Mac, but we can distinguish by detecting touch support.
-		(isMac() && navigator.maxTouchPoints > 1)
-	);
-}
-
-export function isIOS(): boolean | undefined {
-	return isIPhone() || isIPad();
-}
-
-function testPlatform(re: RegExp): boolean | undefined {
-	return typeof window !== "undefined" && window.navigator != null
-		? re.test(window.navigator.platform)
-		: undefined;
-}
+import { addEventListener, chain, isInput, isIOS } from "$lib/internal/helpers/index.js";
 
 const visualViewport = typeof document !== "undefined" && window.visualViewport;
 
@@ -248,7 +218,6 @@ function preventScrollMobileSafari() {
 			`${window.innerWidth - documentElement.clientWidth}px`
 		),
 		setStyle(documentElement, "overflow", "hidden")
-		// setStyle(document.body, 'marginTop', `-${scrollY}px`),
 	);
 
 	// Scroll to the top. The negative margin on the body will make this appear the same.
@@ -271,13 +240,12 @@ function preventScrollMobileSafari() {
 }
 
 // Sets a CSS property on an element, and returns a function to revert it to the previous value.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function setStyle(element: HTMLElement, style: any, value: string) {
-	const cur = element.style[style];
-	element.style[style] = value;
+function setStyle(element: HTMLElement, style: string, value: string) {
+	const cur = (element.style as CSSStyleDeclaration & Record<string, string>)[style];
+	(element.style as CSSStyleDeclaration & Record<string, string>)[style] = value;
 
 	return () => {
-		element.style[style] = cur;
+		(element.style as CSSStyleDeclaration & Record<string, string>)[style] = cur;
 	};
 }
 
