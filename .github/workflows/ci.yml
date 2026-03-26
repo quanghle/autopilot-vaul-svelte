@@ -104,7 +104,7 @@ jobs:
         run: pnpm install
 
       - name: Build site
-        run: vite build
+        run: pnpm exec vite build
 
   package:
     runs-on: ubuntu-latest
