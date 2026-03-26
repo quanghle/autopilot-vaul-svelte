@@ -1,7 +1,7 @@
 import { tick } from "svelte";
 import { derived, get, type Writable } from "svelte/store";
 import { TRANSFORM_TRANSITION, OPACITY_TRANSITION, VELOCITY_THRESHOLD } from "./constants.js";
-import { effect, set, isVertical, isBottomOrRight } from "./helpers/index.js";
+import { effect, set, isVertical, isBottomOrRight, makeTranslate } from "./helpers/index.js";
 import type { DrawerDirection } from "./types.js";
 
 export function handleSnapPoints({
@@ -114,9 +114,7 @@ export function handleSnapPoints({
 
 			set($drawerRef, {
 				transition: TRANSFORM_TRANSITION,
-				transform: isVertical($direction)
-					? `translate3d(0, ${dimension}px, 0)`
-					: `translate3d(${dimension}px, 0, 0)`,
+				transform: makeTranslate($direction, `${dimension}px`),
 			});
 
 			const $fadeFromIndex = get(fadeFromIndex);
@@ -246,9 +244,7 @@ export function handleSnapPoints({
 		}
 
 		set($drawerRef, {
-			transform: isVertical($direction)
-				? `translate3d(0, ${newValue}px, 0)`
-				: `translate3d(${newValue}px, 0, 0)`,
+			transform: makeTranslate($direction, `${newValue}px`),
 		});
 	}
 
