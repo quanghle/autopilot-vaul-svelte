@@ -7,7 +7,7 @@
 	let {
 		onDrag,
 		onOpenChange,
-		open = $bindable(undefined),
+		open = $bindable(false),
 		children,
 		...restProps
 	}: Props & { children?: Snippet } = $props();

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Dialog } from "bits-ui";
-	import { get } from "svelte/store";
 	import { getCtx } from "../ctx.js";
 
 	let { class: className, ...restProps }: { class?: string; [key: string]: unknown } = $props();
@@ -9,9 +8,7 @@
 		refs: { overlayRef },
 		states: { isOpen, visible, snapPoints, shouldFade },
 		methods: { onRelease, closeDrawer },
-		options: {
-			dismissible,
-		},
+		options: { dismissible },
 	} = getCtx();
 
 	let overlayEl: HTMLDivElement | null = $state(null);
@@ -23,7 +20,7 @@
 	let hasSnapPoints = $derived($snapPoints && $snapPoints.length > 0);
 
 	function handleClick() {
-		if (get(dismissible)) {
+		if ($dismissible) {
 			closeDrawer();
 		}
 	}

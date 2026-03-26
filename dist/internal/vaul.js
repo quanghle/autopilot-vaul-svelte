@@ -1,16 +1,10 @@
 import { derived, get, writable } from "svelte/store";
 import { handleSnapPoints } from "./snap-points.js";
-import { overridable, toWritableStores, omit, getTranslate, isVertical, set, reset, effect, removeUndefined, styleToString, isInput, sleep, noop, addEventListener, isBrowser, } from "./helpers/index.js";
-import { isIOS, preventScroll } from "./prevent-scroll.js";
-import { TRANSITIONS, VELOCITY_THRESHOLD } from "./constants.js";
+import { overridable, toWritableStores, omit, getTranslate, isVertical, makeTranslate, set, reset, effect, removeUndefined, styleToString, isInput, isIOS, noop, addEventListener, isBrowser, } from "./helpers/index.js";
+import { preventScroll } from "./prevent-scroll.js";
+import { TRANSITIONS, TRANSITION_TIMING, TRANSFORM_TRANSITION, OPACITY_TRANSITION, VELOCITY_THRESHOLD, CLOSE_THRESHOLD, SCROLL_LOCK_TIMEOUT, BORDER_RADIUS, NESTED_DISPLACEMENT, WINDOW_TOP_OFFSET, DRAG_CLASS, } from "./constants.js";
 import { handleEscapeKeydown } from "./escape-keydown.js";
 import { handlePositionFixed } from "./position-fixed.js";
-const CLOSE_THRESHOLD = 0.25;
-const SCROLL_LOCK_TIMEOUT = 100;
-const BORDER_RADIUS = 8;
-const NESTED_DISPLACEMENT = 16;
-const WINDOW_TOP_OFFSET = 26;
-const DRAG_CLASS = "vaul-dragging";
 const openDrawerIds = writable([]);
 const defaultProps = {
     closeThreshold: CLOSE_THRESHOLD,
@@ -72,6 +66,13 @@ export function createVaul(props) {
     let previousDiffFromInitial = 0;
     let initialDrawerHeight = 0;
     let nestedOpenChangeTimer = null;
+    let cachedWrapperEl = null;
+    function getWrapperEl() {
+        if (!cachedWrapperEl || !cachedWrapperEl.isConnected) {
+            cachedWrapperEl = document.querySelector("[data-vaul-drawer-wrapper]");
+        }
+        return cachedWrapperEl;
+    }
     const activeSnapPoint = overridable(writable(withDefaults.defaultActiveSnapPoint), withDefaults.onActiveSnapPointChange);
     const { activeSnapPointIndex, getPercentageDragged: getSnapPointsPercentageDragged, onDrag: onDragSnapPoints, onRelease: onReleaseSnapPoints, shouldFade, snapPointsOffset, } = handleSnapPoints({
         snapPoints,
@@ -100,7 +101,7 @@ export function createVaul(props) {
     });
     effect([isOpen], ([$open]) => {
         // Prevent double clicks from closing multiple dialogs
-        sleep(100).then(() => {
+        const timeoutId = setTimeout(() => {
             const id = get(drawerId);
             if ($open && id) {
                 openDrawerIds.update((prev) => {
@@ -112,9 +113,10 @@ export function createVaul(props) {
                 });
             }
             else {
-                openDrawerIds.update((prev) => prev.filter((id) => id !== id));
+                openDrawerIds.update((prev) => prev.filter((prevId) => prevId !== id));
             }
-        });
+        }, 100);
+        return () => clearTimeout(timeoutId);
     });
     effect([isOpen], ([$isOpen]) => {
         if (!$isOpen && get(shouldScaleBackground)) {
@@ -184,13 +186,11 @@ export function createVaul(props) {
         if ($openTime && date.getTime() - $openTime.getTime() < 500) {
             return false;
         }
+        // Allow dragging if the drawer is already swiped in its opening direction
         if (swipeAmount !== null) {
             if ($direction === "bottom" || $direction === "right" ? swipeAmount > 0 : swipeAmount < 0) {
                 return true;
             }
-        }
-        if (swipeAmount !== null && swipeAmount > 0) {
-            return true;
         }
         // Don't drag if there's highlighted text
         if (highlightedText && highlightedText.length > 0) {
@@ -263,9 +263,7 @@ export function createVaul(props) {
             const dampenedDraggedDistance = dampenValue(draggedDistance);
             const translateValue = Math.min(dampenedDraggedDistance * -1, 0) * directionMultiplier;
             set($drawerRef, {
-                transform: isVertical($direction)
-                    ? `translate3d(0, ${translateValue}px, 0)`
-                    : `translate3d(${translateValue}px, 0, 0)`,
+                transform: makeTranslate($direction, `${translateValue}px`),
             });
             return;
         }
@@ -286,31 +284,27 @@ export function createVaul(props) {
                 transition: "none",
             }, true);
         }
-        const wrapper = document.querySelector("[data-vaul-drawer-wrapper]");
+        const wrapper = getWrapperEl();
         if (wrapper && $overlayRef && get(shouldScaleBackground)) {
             // Calculate percentageDragged as a fraction (0 to 1)
             const scaleValue = Math.min(getScale() + percentageDragged * (1 - getScale()), 1);
-            const borderRadiusValue = 8 - percentageDragged * 8;
+            const borderRadiusValue = BORDER_RADIUS - percentageDragged * BORDER_RADIUS;
             const translateValue = Math.max(0, 14 - percentageDragged * 14);
             set(wrapper, {
                 borderRadius: `${borderRadiusValue}px`,
-                transform: isVertical($direction)
-                    ? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)`
-                    : `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
+                transform: `scale(${scaleValue}) ${makeTranslate($direction, `${translateValue}px`)}`,
                 transition: "none",
             }, true);
         }
         if (!$snapPoints) {
             const translateValue = absDraggedDistance * directionMultiplier;
             set($drawerRef, {
-                transform: isVertical($direction)
-                    ? `translate3d(0, ${translateValue}px, 0)`
-                    : `translate3d(${translateValue}px, 0, 0)`,
+                transform: makeTranslate($direction, `${translateValue}px`),
             });
         }
     }
     function scaleBackground(open, backgroundColor = "black") {
-        const wrapper = document.querySelector("[data-vaul-drawer-wrapper]");
+        const wrapper = getWrapperEl();
         if (!wrapper || !get(shouldScaleBackground))
             return;
         const $direction = get(direction);
@@ -323,22 +317,7 @@ export function createVaul(props) {
             set(document.body, {
                 background: backgroundColor,
             }, true);
-            set(wrapper, {
-                borderRadius: `${BORDER_RADIUS}px`,
-                overflow: "hidden",
-                ...(isVertical($direction)
-                    ? {
-                        transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
-                        transformOrigin: "top",
-                    }
-                    : {
-                        transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
-                        transformOrigin: "left",
-                    }),
-                transitionProperty: "transform, border-radius",
-                transitionDuration: `${TRANSITIONS.DURATION}s`,
-                transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
-            });
+            set(wrapper, getWrapperScaleStyles($direction));
         }
         else {
             // Exit
@@ -348,7 +327,7 @@ export function createVaul(props) {
             set(wrapper, {
                 transitionProperty: "transform, border-radius",
                 transitionDuration: `${TRANSITIONS.DURATION}s`,
-                transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+                transitionTimingFunction: TRANSITION_TIMING,
             });
         }
     }
@@ -420,15 +399,14 @@ export function createVaul(props) {
             return;
         const $direction = get(direction);
         onClose?.();
+        const closeValue = $direction === "bottom" || $direction === "right" ? "100%" : "-100%";
         set($drawerRef, {
-            transform: isVertical($direction)
-                ? `translate3d(0, ${$direction === "bottom" ? "100%" : "-100%"}, 0)`
-                : `translate3d(${$direction === "right" ? "100%" : "-100%"}, 0, 0)`,
-            transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+            transform: makeTranslate($direction, closeValue),
+            transition: TRANSFORM_TRANSITION,
         });
         set(get(overlayRef), {
             opacity: "0",
-            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+            transition: OPACITY_TRANSITION,
         });
         scaleBackground(false);
         isClosing = true;
@@ -462,37 +440,26 @@ export function createVaul(props) {
         if (!$drawerRef)
             return;
         const $overlayRef = get(overlayRef);
-        const wrapper = document.querySelector("[data-vaul-drawer-wrapper]");
+        const wrapper = getWrapperEl();
         const $direction = get(direction);
         const currentSwipeAmount = getTranslate($drawerRef, $direction);
         set($drawerRef, {
             transform: "translate3d(0, 0, 0)",
-            transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+            transition: TRANSFORM_TRANSITION,
         });
         set($overlayRef, {
-            transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
+            transition: OPACITY_TRANSITION,
             opacity: "1",
         });
         const $shouldScaleBackground = get(shouldScaleBackground);
         const $isOpen = get(isOpen);
-        // Don't reset background if swiped upwards
-        if ($shouldScaleBackground && currentSwipeAmount && currentSwipeAmount > 0 && $isOpen) {
-            set(wrapper, {
-                borderRadius: `${BORDER_RADIUS}px`,
-                overflow: "hidden",
-                ...(isVertical($direction)
-                    ? {
-                        transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
-                        transformOrigin: "top",
-                    }
-                    : {
-                        transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
-                        transformOrigin: "left",
-                    }),
-                transitionProperty: "transform, border-radius",
-                transitionDuration: `${TRANSITIONS.DURATION}s`,
-                transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
-            }, true);
+        // Don't reset background if swiped past the resting position (opposite of close direction)
+        const isSwipedInCloseDirection = currentSwipeAmount !== null &&
+            ($direction === "bottom" || $direction === "right"
+                ? currentSwipeAmount > 0
+                : currentSwipeAmount < 0);
+        if ($shouldScaleBackground && isSwipedInCloseDirection && $isOpen) {
+            set(wrapper, getWrapperScaleStyles($direction), true);
         }
     }
     function onRelease(event) {
@@ -585,14 +552,16 @@ export function createVaul(props) {
     });
     function onNestedOpenChange(o) {
         const $drawerRef = get(drawerRef);
-        const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
-        const y = o ? -NESTED_DISPLACEMENT : 0;
+        const $direction = get(direction);
+        const dim = isVertical($direction) ? window.innerHeight : window.innerWidth;
+        const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
+        const translate = o ? -NESTED_DISPLACEMENT : 0;
         if (nestedOpenChangeTimer) {
             window.clearTimeout(nestedOpenChangeTimer);
         }
         set($drawerRef, {
-            transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
-            transform: `scale(${scale}) translate3d(0, ${y}px, 0)`,
+            transition: TRANSFORM_TRANSITION,
+            transform: `scale(${scale}) ${makeTranslate($direction, `${translate}px`)}`,
         });
         if (!o && $drawerRef) {
             nestedOpenChangeTimer = setTimeout(() => {
@@ -600,9 +569,7 @@ export function createVaul(props) {
                 const translateValue = getTranslate($drawerRef, $direction);
                 set($drawerRef, {
                     transition: "none",
-                    transform: isVertical($direction)
-                        ? `translate3d(0, ${translateValue}px, 0)`
-                        : `translate3d(${translateValue}px, 0, 0)`,
+                    transform: makeTranslate($direction, `${translateValue}px`),
                 });
             }, 500);
         }
@@ -615,9 +582,7 @@ export function createVaul(props) {
         const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
         const $direction = get(direction);
         set(get(drawerRef), {
-            transform: isVertical($direction)
-                ? `scale(${newScale}) translate3d(0, ${newTranslate}px, 0)`
-                : `scale(${newScale}) translate3d(${newTranslate}px, 0, 0)`,
+            transform: `scale(${newScale}) ${makeTranslate($direction, `${newTranslate}px`)}`,
             transition: "none",
         });
     }
@@ -628,10 +593,8 @@ export function createVaul(props) {
         const translate = o ? -NESTED_DISPLACEMENT : 0;
         if (o) {
             set(get(drawerRef), {
-                transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`,
-                transform: isVertical($direction)
-                    ? `scale(${scale}) translate3d(0, ${translate}px, 0)`
-                    : `scale(${scale}) translate3d(${translate}px, 0, 0)`,
+                transition: TRANSFORM_TRANSITION,
+                transform: `scale(${scale}) ${makeTranslate($direction, `${translate}px`)}`,
             });
         }
     }
@@ -677,6 +640,20 @@ export function dampenValue(v) {
 }
 function getScale() {
     return (window.innerWidth - WINDOW_TOP_OFFSET) / window.innerWidth;
+}
+/** Return the shared wrapper styles used when the background is scaled (open state). */
+function getWrapperScaleStyles(direction) {
+    return {
+        borderRadius: `${BORDER_RADIUS}px`,
+        overflow: "hidden",
+        transform: isVertical(direction)
+            ? `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`
+            : `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
+        transformOrigin: isVertical(direction) ? "top" : "left",
+        transitionProperty: "transform, border-radius",
+        transitionDuration: `${TRANSITIONS.DURATION}s`,
+        transitionTimingFunction: TRANSITION_TIMING,
+    };
 }
 function getDistanceMoved(pointerStart, direction, event) {
     if (event.type.startsWith("touch")) {

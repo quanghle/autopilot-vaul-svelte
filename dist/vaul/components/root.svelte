@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Dialog } from "bits-ui";
 	import { setCtx } from "../ctx.js";
+	import type { CreateVaulProps } from "../../internal/vaul.js";
 	import type { Props } from "./types.js";
 	import { get } from "svelte/store";
 
@@ -28,7 +29,7 @@
 		states: { activeSnapPoint: localActiveSnapPoint, isOpen },
 		methods: { closeDrawer, openDrawer },
 		updateOption,
-	// svelte-ignore state_referenced_locally
+		// svelte-ignore state_referenced_locally
 	} = setCtx({
 		defaultOpen: open,
 		defaultActiveSnapPoint: activeSnapPoint,
@@ -55,8 +56,7 @@
 		},
 		closeThreshold,
 		scrollLockTimeout,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		snapPoints: snapPoints as any,
+		snapPoints: snapPoints as (number | string)[] | undefined,
 		fadeFromIndex,
 		nested,
 		onDrag,
@@ -66,7 +66,7 @@
 		backgroundColor,
 		dismissible,
 		direction,
-	});
+	} as CreateVaulProps);
 
 	$effect(() => {
 		if (activeSnapPoint !== undefined) localActiveSnapPoint.set(activeSnapPoint);
@@ -119,7 +119,7 @@
 		onOpenChange?.(o);
 		if (!o) {
 			closeDrawer();
-		} else if (o) {
+		} else {
 			openDrawer();
 		}
 	}}

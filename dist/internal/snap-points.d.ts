@@ -9,7 +9,6 @@ export declare function handleSnapPoints({ activeSnapPoint, snapPoints, drawerRe
     openTime: Writable<Date | null>;
     direction: Writable<DrawerDirection>;
 }): {
-    isLastSnapPoint: import("svelte/store").Readable<boolean>;
     shouldFade: import("svelte/store").Readable<boolean>;
     getPercentageDragged: (absDraggedDistance: number, isDraggingDown: boolean) => number | null;
     activeSnapPointIndex: import("svelte/store").Readable<number | null>;

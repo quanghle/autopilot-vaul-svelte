@@ -13,3 +13,5 @@ bun.lockb
 package-lock.json
 /test-results/
 /playwright-report/
+dist/**/*.test.*
+dist/**/*.spec.*
