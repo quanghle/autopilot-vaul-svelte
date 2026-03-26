@@ -29,7 +29,7 @@ export type Props = {
 	 * Duration in ms for which the drawer is not draggable after
 	 * scrolling  content inside of the drawer.
 	 *
-	 * @default 500
+	 * @default 100
 	 */
 	scrollLockTimeout?: CreateVaulProps["scrollLockTimeout"] & {};
 

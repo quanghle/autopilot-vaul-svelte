@@ -17,6 +17,7 @@ This is **autopilot-vaul-svelte**, an unstyled, gesture-driven drawer component 
 - **ESLint 10** (flat config) + **Prettier** for linting/formatting
 - **pnpm** as the package manager (`pnpm@9.6.0`)
 - **Changesets** for versioning and changelogs
+- **Dependabot** for automated dependency updates (npm and GitHub Actions, weekly)
 
 ## Commands
 
@@ -29,6 +30,7 @@ This is **autopilot-vaul-svelte**, an unstyled, gesture-driven drawer component 
 | Type-check   | `pnpm run check`      |
 | Test (watch) | `pnpm run test`       |
 | Test (CI)    | `pnpm run test --run` |
+| E2E tests    | `pnpm run test:e2e`   |
 | Package lib  | `pnpm run package`    |
 
 ## Project Structure
@@ -51,7 +53,7 @@ src/
 │   │       └── types.ts        # Component prop types
 │   └── internal/               # Internal utilities (not exported)
 │       ├── vaul.ts             # Core drawer logic (createVaul)
-│       ├── constants.ts        # Transition timing constants
+│       ├── constants.ts        # Transition timing, thresholds, layout constants
 │       ├── types.ts            # Shared types (DrawerDirection, etc.)
 │       ├── snap-points.ts      # Snap point calculations
 │       ├── prevent-scroll.ts   # Scroll lock logic
@@ -59,13 +61,12 @@ src/
 │       ├── position-fixed.ts   # Fixed positioning detection
 │       └── helpers/            # Small utility functions
 │           ├── store.ts        # Reactive store utilities
-│           ├── style.ts        # CSS style helpers
-│           ├── is.ts           # Type guards (isInput, isVertical, etc.)
+│           ├── style.ts        # CSS style helpers, makeTranslate
+│           ├── is.ts           # Type/platform guards (isInput, isVertical, isIOS, etc.)
 │           ├── chain.ts        # Event handler chaining
 │           ├── event-listener.ts
-│           ├── object.ts       # omit, set, reset
+│           ├── object.ts       # omit, removeUndefined
 │           ├── options.ts      # Option updater
-│           ├── sleep.ts        # Async delay
 │           └── noop.ts         # No-op function
 ├── routes/                     # Demo site (SvelteKit pages)
 │   ├── +page.svelte            # Home page
@@ -173,11 +174,16 @@ The library uses `data-vaul-*` attributes for styling hooks:
 
 ### Constants
 
-Transition timing strings are cached in `src/lib/internal/constants.ts`. Use the pre-built constants instead of inline template literals:
+All shared numeric/string constants live in `src/lib/internal/constants.ts`. This includes transition timing, thresholds, and layout values. Use the pre-built constants instead of inline values:
 
 ```ts
-import { TRANSFORM_TRANSITION, OPACITY_TRANSITION } from "$lib/internal/constants.js";
-// Not: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(",")})`
+import {
+	TRANSFORM_TRANSITION,
+	OPACITY_TRANSITION,
+	CLOSE_THRESHOLD,
+	BORDER_RADIUS,
+	DRAG_CLASS,
+} from "$lib/internal/constants.js";
 ```
 
 ### Import Paths
@@ -203,6 +209,8 @@ Always include the `.js` extension in import paths (TypeScript `NodeNext` resolu
 - `isInput(el)` — checks if an element is a text input, textarea, or contenteditable
 - `isVertical(direction)` — checks if direction is `"top"` or `"bottom"`
 - `isBottomOrRight(direction)` — checks if direction is `"bottom"` or `"right"`
+- `isIOS()` / `isSafari()` — platform detection (consolidated in `helpers/is.ts`)
+- `makeTranslate(direction, value)` — builds a `translate3d` string for the correct axis
 - `dampenValue(val)` — applies logarithmic dampening for drag overshoot
 
 ## Code Style
@@ -251,15 +259,38 @@ describe("functionName", () => {
 });
 ```
 
+## CI/CD
+
+### Pull Request Checks (`ci.yml`)
+
+Three parallel jobs run on every PR to `main`:
+
+- **lint** — Prettier + ESLint + `svelte-check` type checking
+- **test** — Vitest unit tests + Playwright E2E tests (Chromium)
+- **build** — Full production build (`vite build` + `svelte-package` + `publint`)
+
+Playwright test reports are uploaded as artifacts on failure.
+
+### Release Automation (`release.yml`)
+
+On push to `main`, the [changesets/action](https://github.com/changesets/action) either:
+
+1. Opens a "Version Packages" PR that bumps versions and updates the changelog, or
+2. Publishes to npm if the version PR was just merged.
+
+Requires the `NPM_TOKEN` secret to be configured in repo settings.
+
+### Demo Site (`static.yml`)
+
+Deploys to **GitHub Pages** at `https://quanghle.github.io/autopilot-vaul-svelte` on push to `main`.
+
+### Dependency Updates (`dependabot.yml`)
+
+Dependabot opens weekly PRs for npm dependencies (dev deps grouped) and GitHub Actions versions.
+
 ## Versioning & Releases
 
 - Use **Changesets** for version management: `pnpm changeset` to create a changeset
 - Follow **semver** conventions
 - Changelog is auto-generated using `@svitejs/changesets-changelog-github-compact`
-- Publishing: `pnpm run release`
-
-## Deployment
-
-- The demo site deploys to **GitHub Pages** at `https://quanghle.github.io/autopilot-vaul-svelte`
-- Uses `@sveltejs/adapter-static` with base path `/autopilot-vaul-svelte` in production
-- Deployment triggers on push to `main` branch
+- Publishing is automated via the release workflow; manual publish: `pnpm run release`
