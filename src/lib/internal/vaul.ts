@@ -778,8 +778,10 @@ export function createVaul(props: CreateVaulProps) {
 
 	function onNestedOpenChange(o: boolean) {
 		const $drawerRef = get(drawerRef);
-		const scale = o ? (window.innerWidth - NESTED_DISPLACEMENT) / window.innerWidth : 1;
-		const y = o ? -NESTED_DISPLACEMENT : 0;
+		const $direction = get(direction);
+		const dim = isVertical($direction) ? window.innerHeight : window.innerWidth;
+		const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
+		const translate = o ? -NESTED_DISPLACEMENT : 0;
 
 		if (nestedOpenChangeTimer) {
 			window.clearTimeout(nestedOpenChangeTimer);
@@ -787,7 +789,7 @@ export function createVaul(props: CreateVaulProps) {
 
 		set($drawerRef, {
 			transition: TRANSFORM_TRANSITION,
-			transform: `scale(${scale}) translate3d(0, ${y}px, 0)`,
+			transform: `scale(${scale}) ${makeTranslate($direction, `${translate}px`)}`,
 		});
 
 		if (!o && $drawerRef) {
