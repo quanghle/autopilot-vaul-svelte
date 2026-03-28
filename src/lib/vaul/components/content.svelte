@@ -8,11 +8,13 @@
 		style = "",
 		children,
 		class: className,
+		trapFocus = true,
 		...restProps
 	}: {
 		style?: string;
 		children?: Snippet;
 		class?: string;
+		trapFocus?: boolean;
 		[key: string]: unknown;
 	} = $props();
 
@@ -55,7 +57,7 @@
 	interactOutsideBehavior="ignore"
 	escapeKeydownBehavior="ignore"
 	preventScroll={false}
-	trapFocus={false}
+	{trapFocus}
 	data-vaul-drawer=""
 	data-vaul-drawer-direction={$direction}
 	data-vaul-drawer-visible={$visible ? "true" : "false"}

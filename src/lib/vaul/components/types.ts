@@ -129,7 +129,17 @@ export type Props = {
 };
 
 export type OverlayProps = HTMLAttributes<HTMLDivElement>;
-export type ContentProps = HTMLAttributes<HTMLDivElement>;
+export type ContentProps = HTMLAttributes<HTMLDivElement> & {
+	/**
+	 * Whether to trap focus within the drawer content.
+	 *
+	 * When `true`, keyboard focus is constrained inside the drawer,
+	 * matching the overlay's visual behavior and WCAG modal dialog guidelines.
+	 *
+	 * @default true
+	 */
+	trapFocus?: boolean;
+};
 export type TitleProps = HTMLAttributes<HTMLHeadingElement>;
 export type DescriptionProps = HTMLAttributes<HTMLDivElement>;
 export type CloseProps = HTMLAttributes<HTMLButtonElement>;
