@@ -133,6 +133,29 @@ test.describe("Non-draggable Drawer", () => {
 	});
 });
 
+test.describe("Focus Trap", () => {
+	test.beforeEach(async ({ page }) => {
+		await page.goto("/autopilot-vaul-svelte/test/focus-trap");
+	});
+
+	test("traps focus within drawer by default", async ({ page }) => {
+		const trigger = page.locator("#trigger");
+		await trigger.click();
+
+		const drawer = page.locator("[data-vaul-drawer]");
+		await expect(drawer).toBeVisible();
+
+		// Tab through focusable elements — focus should stay inside the drawer
+		await page.keyboard.press("Tab");
+		await page.keyboard.press("Tab");
+		await page.keyboard.press("Tab");
+
+		const focused = await page.evaluate(() => document.activeElement?.id);
+		expect(focused).not.toBe("outside-button");
+		expect(focused).not.toBe("outside-button-after");
+	});
+});
+
 test.describe("Examples Page", () => {
 	test("loads and displays example drawers", async ({ page }) => {
 		await page.goto("/autopilot-vaul-svelte/examples");
