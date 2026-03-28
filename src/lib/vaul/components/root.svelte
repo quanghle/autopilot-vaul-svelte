@@ -33,8 +33,8 @@
 	} = setCtx({
 		defaultOpen: open,
 		defaultActiveSnapPoint: activeSnapPoint,
-		onOpenChange: ({ next }) => {
-			if (open !== next) {
+		onOpenChange: ({ curr, next }) => {
+			if (curr !== next) {
 				onOpenChange?.(next);
 				open = next;
 			}
