@@ -27,7 +27,7 @@
 
 	const {
 		states: { activeSnapPoint: localActiveSnapPoint, isOpen },
-		methods: { closeDrawer, openDrawer },
+		methods: { closeDrawer, openDrawer, cleanup },
 		updateOption,
 		// svelte-ignore state_referenced_locally
 	} = setCtx({
@@ -110,6 +110,10 @@
 
 	$effect(() => {
 		if (!open && get(isOpen)) closeDrawer();
+	});
+
+	$effect(() => {
+		return () => cleanup();
 	});
 </script>
 

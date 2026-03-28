@@ -162,6 +162,8 @@ export function createVaul(props: CreateVaulProps) {
 	let previousDiffFromInitial = 0;
 	let initialDrawerHeight = 0;
 	let nestedOpenChangeTimer: NodeJS.Timeout | null = null;
+	let closeTimeoutId: ReturnType<typeof setTimeout> | undefined;
+	let closeResetTimeoutId: ReturnType<typeof setTimeout> | undefined;
 	let cachedWrapperEl: Element | null = null;
 
 	function getWrapperEl(): Element | null {
@@ -612,7 +614,7 @@ export function createVaul(props: CreateVaulProps) {
 		scaleBackground(false);
 
 		isClosing = true;
-		setTimeout(() => {
+		closeTimeoutId = setTimeout(() => {
 			visible.set(false);
 			isOpen.set(false);
 			isClosing = false;
@@ -623,7 +625,7 @@ export function createVaul(props: CreateVaulProps) {
 
 		const $snapPoints = get(snapPoints);
 
-		setTimeout(() => {
+		closeResetTimeoutId = setTimeout(() => {
 			reset(document.documentElement, "scrollBehavior");
 			if ($snapPoints) {
 				activeSnapPoint.set($snapPoints[0]);
@@ -843,6 +845,17 @@ export function createVaul(props: CreateVaulProps) {
 		}
 	}
 
+	function cleanup() {
+		if (closeTimeoutId) {
+			clearTimeout(closeTimeoutId);
+			closeTimeoutId = undefined;
+		}
+		if (closeResetTimeoutId) {
+			clearTimeout(closeResetTimeoutId);
+			closeResetTimeoutId = undefined;
+		}
+	}
+
 	return {
 		states: {
 			isOpen,
@@ -871,6 +884,7 @@ export function createVaul(props: CreateVaulProps) {
 			onNestedRelease,
 			restorePositionSetting,
 			openDrawer,
+			cleanup,
 		},
 		refs: {
 			drawerRef,
