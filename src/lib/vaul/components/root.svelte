@@ -33,8 +33,8 @@
 	} = setCtx({
 		defaultOpen: open,
 		defaultActiveSnapPoint: activeSnapPoint,
-		onOpenChange: ({ curr, next }) => {
-			if (curr !== next) {
+		onOpenChange: ({ next }) => {
+			if (open !== next) {
 				onOpenChange?.(next);
 				open = next;
 			}
@@ -116,6 +116,7 @@
 <Dialog.Root
 	bind:open
 	onOpenChange={(o) => {
+		onOpenChange?.(o);
 		if (!o) {
 			closeDrawer();
 		} else {
