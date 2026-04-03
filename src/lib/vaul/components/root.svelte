@@ -25,7 +25,7 @@
 		children,
 	}: Props = $props();
 
-	let propDriven = false;
+	let dialogDriven = false;
 
 	const {
 		states: { activeSnapPoint: localActiveSnapPoint, isOpen },
@@ -37,12 +37,12 @@
 		defaultActiveSnapPoint: activeSnapPoint,
 		onOpenChange: ({ curr, next }) => {
 			if (curr !== next) {
-				if (!propDriven) {
+				if (dialogDriven) {
 					onOpenChange?.(next);
 				}
 				open = next;
 			}
-			propDriven = false;
+			dialogDriven = false;
 			return next;
 		},
 		onActiveSnapPointChange: ({ next }) => {
@@ -110,23 +110,18 @@
 	});
 
 	$effect(() => {
-		if (open && !get(isOpen)) {
-			propDriven = true;
-			openDrawer();
-		}
+		if (open && !get(isOpen)) openDrawer();
 	});
 
 	$effect(() => {
-		if (!open && get(isOpen)) {
-			propDriven = true;
-			closeDrawer();
-		}
+		if (!open && get(isOpen)) closeDrawer();
 	});
 </script>
 
 <Dialog.Root
 	bind:open
 	onOpenChange={(o) => {
+		dialogDriven = true;
 		if (!o) {
 			closeDrawer();
 		} else {
