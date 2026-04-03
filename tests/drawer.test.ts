@@ -178,9 +178,17 @@ test.describe("Focus Trap Disabled", () => {
 
 		// Tab — focus should be able to leave the drawer since trapFocus is false
 		await page.keyboard.press("Tab");
-		const focused = await page.evaluate(() => document.activeElement?.id);
-		expect(focused).not.toBe("inside-first");
-		expect(focused).not.toBe("inside-second");
+		const focusState = await page.evaluate(() => {
+			const drawer = document.querySelector("[data-vaul-drawer]");
+			const activeElement = document.activeElement;
+
+			return {
+				activeElementId: activeElement?.id ?? "",
+				isInsideDrawer: drawer?.contains(activeElement) ?? false,
+			};
+		});
+		expect(focusState.activeElementId).not.toBe("inside-second");
+		expect(focusState.isInsideDrawer).toBe(false);
 	});
 });
 
